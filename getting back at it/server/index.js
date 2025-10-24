@@ -1,0 +1,403 @@
+//importing fs system module
+const fs = require("fs");
+
+//importing mongoDB
+const { MongoClient } = require("mongodb")
+
+//importing bcrypt
+const bcrypt = require("bcrypt");
+
+//importing express and creating a new express app instance
+const express = require("express");
+const app = express();
+
+//creates an http server using the created express app and attaches socket io
+const server = require("http").Server(app);
+const io = require("socket.io")(server);
+
+const port = 3000;
+
+//other imported and self created scripts go here
+const userHandler = require("./user-handling.js")
+const dataHandler = require("./data-handling.js")
+//initiates server if server is not on
+if (!server.listening){
+
+    //initiates the server with the port and the IP 0.0.0.0
+    server.listen(port, "0.0.0.0", () => {
+
+        console.log(`Server has been initiated at http://localhost:${port}`)
+
+    })
+
+}
+
+else {console.log("Server has already been initiated")}
+
+//mongodb set up
+const uri = "mongodb://localhost:27017/"
+const client = new MongoClient(uri);
+
+//simple self calling async function to connect to mongo data base
+(async()=>{
+if (!client.isConnected?.() && !client.topology?.isConnected()){
+
+    await client.connect();
+    console.log("Connected to MongoDB");
+
+}
+})();
+
+//retrieves data and prints it
+asyncFunctionCallBack(dataHandler.recieveMongoDataBase, client, true).then((returnedData)=>{
+    //console.log(returnedData)
+});
+
+//asyncFunctionCallBack(dataHandler.comparePasword, client, "poop", "Dodona2a").then((value)=>{console.log(value)}) //<-- password compare function
+//asyncFunctionCallBack(dataHandler.createUserData, client, "epic", "gayboy").then((value)=>{console.log(value)}) //<-- creating user function
+
+//links express app to public folder for clients to access
+app.use(express.static("../public"))
+
+//runs BEFORE a user has fully connected
+/*io.use((socket, next)=>{
+
+    //allows user to fully connect to server
+    next();
+
+})*/
+
+const characters = [
+    "A", "B", "C", "D", "E", "F", "G", "H", "I",
+    "J", "K", "L", "M", "N", "O", "P", "Q", "R",
+    "S", "T", "U", "V", "W", "X", "Y", "Z", "1",
+    "2", "3", "4", "5", "6", "7", "8", "9", "0"
+]
+
+//TOKENS-----
+var tokens = [];
+var rooms = [{
+    "room code": "ABCD",
+    "active-users": [],
+    host: "tipollae",
+}];
+/*room object :
+
+{
+    "room code": "ABCD",
+    "active-users": [ ["username", "tokenID"] ],
+    host: "some username",
+}
+
+*/
+
+//runs once a user has FULLY connected to the server
+io.on("connection", async (socket)=>{
+
+    console.log(`a user has connected! socket id: ${socket.id}, client id: ${socket.client.id}`)
+
+    socket.emit("established-connection")
+
+    socket.on("connection-protocal", async (giventoken)=>{
+
+        const foundToken = tokens.find(object => object.token === giventoken);
+
+        if (foundToken){
+
+            await asyncFunctionCallBack(userHandler.loginUser, socket, foundToken["token"], foundToken["username"], foundToken, tokens)
+
+        }
+
+        else{
+
+            socket.emit("expired-token-protocal")
+            console.log("token is expired")
+
+        }
+
+    })
+
+    socket.on("login-details", async (givenUsername, givenPassword)=>{
+
+        loginStatus = await asyncFunctionCallBack(dataHandler.comparePasword, client, givenUsername, givenPassword);
+        const generatedToken = String(Math.random().toString(36).substring(2));
+        const foundToken = tokens.find(object => object.username === givenUsername);
+
+        if (loginStatus[0]){
+
+            await asyncFunctionCallBack(userHandler.loginUser, socket, generatedToken, givenUsername, foundToken, tokens)
+
+        }
+
+        else{ console.log(`Failed to login`); console.log(loginStatus) }
+
+    })
+
+    //searching for a room
+    socket.on("search-room", (givenRoomCode, givenLocalRoomCode)=>{
+
+        const foundRoom = rooms.find(room => room["room code"] === String(givenRoomCode));
+
+        if (foundRoom){
+
+            const foundUser = tokens.find(object => object.token === socket.data.token);
+
+            console.log(foundRoom["room code"])
+            console.log(foundUser["active-rooms"])
+
+            if ((foundUser["active-rooms"].indexOf(foundRoom["room code"])) == -1){
+
+                foundUser["active-rooms"].push(foundRoom["room code"])
+                socket.emit("valid-room", foundUser["active-rooms"], foundRoom["room code"])
+                console.log("Valid room, joining room...")
+
+            }
+
+            else{
+
+                socket.emit("already-in-room")
+
+            }
+
+        }
+
+        else{
+
+            socket.emit("invalid-room")
+
+        }
+
+    })
+
+    //joining room
+    socket.on("joinRoom", (givenRoomCode)=>{
+
+        socket.join(givenRoomCode)
+        const foundRoom = rooms.find(room => room["room code"] === String(givenRoomCode));
+        let existingUser;
+        if (foundRoom){
+
+            existingUser = foundRoom["active-users"].findIndex(user =>
+            user.username === socket.data.username &&
+            user.token === socket.data.token &&
+            user.socketID === socket.id)
+
+        }
+        if (existingUser == -1){
+
+            foundRoom["active-users"].push({"username": socket.data.username, "token": socket.data.token, 
+                "socketID": socket.id})
+
+            socket.data.isInRoom = true;
+
+            const foundRoomUsersList = [];
+            for (let i = 0; i < foundRoom["active-users"].length; i++){
+                foundRoomUsersList.push(foundRoom["active-users"][i].username);
+            }
+
+            socket.emit("user-successfully-joined-room", {
+                "room code": foundRoom["room code"],
+                "active-users": foundRoomUsersList,
+                "host": foundRoom["host"],
+            })
+
+            for (let i = 0; i < 20; i++){
+                console.log("test----------------------------------------------------------------------")
+            }
+
+            socket.to(foundRoom["room code"]).emit("update-user-list",{
+                "room code": foundRoom["room code"],
+                "active-users": foundRoomUsersList,
+                "host": foundRoom["host"],
+            })
+
+            console.log("added user to room")
+            console.log(`Active users length: ${foundRoom["active-users"].length}`)
+
+        }
+
+        //console.log(rooms)
+
+    })
+
+    //creating a room
+    socket.on("createRoom", ()=>{
+
+        console.log("creating room...")
+
+        let roomCode = createRoomCode();
+
+        while ((rooms.find(room => room["room code"] === roomCode))){
+
+            roomCode = createRoomCode();
+
+        }
+
+        rooms.push
+        ({
+            "room code": roomCode,
+            "active-users": [],
+            host: socket.data.username,
+        })
+        const foundUser = tokens.find(object => object.token === socket.data.token);
+
+        foundUser["active-rooms"].push(roomCode)
+        socket.join(roomCode)
+        socket.emit("valid-room", foundUser["active-rooms"], roomCode)
+
+    })
+
+    //disconnect handling
+    socket.on("disconnect", ()=>{
+
+        console.log(`a user has disconnected! socket id ${socket.id}`);
+
+        console.log(`SOCKET DATA: ${socket.data.isInRoom}`)
+
+        if (socket.data.isInRoom == true){
+
+            for (let i = 0; i < rooms.length; i++){
+                const foundUser = rooms[i]["active-users"].findIndex(user => user.socketID === socket.id);
+                const foundTokenUser = tokens.find(user => user.token === socket.data.token);
+                console.log(foundTokenUser)
+                if (foundUser >= 0){
+
+                    let activeUsersReference = rooms[i]["active-users"];
+                    activeUsersReference.splice(foundUser, 1)
+
+                    const foundActiveRoom = foundTokenUser["active-rooms"].indexOf(rooms[i]["room code"])
+                    foundTokenUser["active-rooms"].splice(foundActiveRoom, 1);
+
+                    var foundRoomUsersList = [];
+                    for (let i = 0; i < activeUsersReference.length; i++){
+                        foundRoomUsersList.push(activeUsersReference[i].username);
+                    }
+
+                    socket.to(rooms[i]["room code"]).emit("update-user-list",{
+                        "room code": rooms[i]["room code"],
+                        "active-users": foundRoomUsersList,
+                        "host": rooms[i]["host"],
+                    })
+
+                    console.log(`blaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh  ${rooms[i]["active-users"]}  blaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh`)
+
+                }
+
+            }
+
+            console.log("REMOVED SOCKET FROM ROOM");
+
+            const foundSocketUser = tokens.find(object => object.token === socket.data.token);
+            console.log(foundSocketUser)
+            if (foundSocketUser){
+
+                console.log("deleting socket from token database");
+
+                let i;
+                while ((i = foundSocketUser["active-sockets"].indexOf(socket.id)) > -1) {
+                    foundSocketUser["active-sockets"].splice(i, 1);
+                }
+
+                console.log("successfully deleted instances of the socket")
+                console.log(foundSocketUser)
+
+                if (foundSocketUser["active-sockets"].length == 0){
+
+                    tokens.splice(tokens.indexOf(foundSocketUser), 1)
+                    console.log("deleting token")
+
+                }
+
+            }
+
+        }
+
+        else{
+
+            console.log("socket was not in a room")
+            
+            setTimeout(()=>{
+
+                const foundSocketUser = tokens.find(object => object.token === socket.data.token);
+                console.log(foundSocketUser)
+                if (foundSocketUser){
+
+                    console.log("deleting socket from token database");
+
+                    while ((i = foundSocketUser["active-sockets"].indexOf(socket.id)) > -1) {
+                        foundSocketUser["active-sockets"].splice(i, 1);
+                    }
+
+                    console.log("successfully deleted instances of the socket")
+                    console.log(foundSocketUser)
+
+                    let activeRooms = rooms.filter(room => room["active-users"].find(user => user.token === socket.data.token))
+                    let temporaryRoomsHolder = []
+                    for (let roomIndex = 0; roomIndex < activeRooms.length; roomIndex++){
+
+                        temporaryRoomsHolder.push(String(activeRooms[roomIndex]["room code"]))
+
+                    }
+
+                    foundSocketUser["active-rooms"] = temporaryRoomsHolder;
+
+                    if (foundSocketUser["active-sockets"].length == 0){
+
+                        tokens.splice(tokens.indexOf(foundSocketUser), 1)
+                        console.log("deleting token")
+
+                    }
+
+                }
+
+            }, 10000)
+
+        }
+
+    });
+
+})
+
+async function roomCheckLoop(){
+
+    rooms = rooms.filter(room => room["active-users"].length > 0);
+
+    console.log(rooms);
+
+    await wait(10000);
+
+    roomCheckLoop();
+    
+}
+
+roomCheckLoop();
+
+//re-usable functions
+async function asyncFunctionCallBack(givenFunction, ...params){
+
+    const functionValue = await givenFunction(...params);
+    if (functionValue !== undefined){ return functionValue }
+
+
+}
+
+function wait (waitTime){
+
+    return new Promise(resolve => setTimeout(resolve, waitTime))
+
+}
+
+function createRoomCode(){
+
+    let roomCode = "";
+
+    for (let i = 0; i < 4; i++){
+
+        chosenCharacter = Math.floor(Math.random()*characters.length);
+        roomCode += characters[chosenCharacter];
+
+    }
+
+    return roomCode
+
+}

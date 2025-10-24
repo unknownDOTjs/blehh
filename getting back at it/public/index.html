@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+<body>
+
+    <div id = "loginInterfaceContainer">
+
+        <center>
+
+            <input class = "input" id = "inputUSERNAME" type = "text" placeholder="Enter username"><br>
+            <input class = "input" id = "inputPASSWORD" type = "password" placeholder="Enter password">
+            <div id = "loginButton" onclick = "sendLoginDetails()">Login</div>
+
+        </center>
+
+    </div>
+    <!----- server socket io module ----->
+    <script type = "text/javascript" src = "/socket.io/socket.io.js"></script>
+
+    <script type = "text/javascript" src = "scripts/script.js"></script>
+
+</body>
+</html>

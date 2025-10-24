@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+<body>
+
+    <div id = "roomDisplayContainer">
+
+        <div class = "roomHandlingContainer">
+
+            <div id = "roomHandlerInputs">
+
+                <center>
+
+                    <input class = "input" id = "inputROOMCODE" type = "text" placeholder="Enter room code"><br>
+                    <div class = "button1" onclick = "searchRoom()" style = "margin-top: 20px">Join room</div>
+                    <br>
+                    <div class = "button1" onclick = "createRoom()" style = "margin-top: 20px">Create room</div>
+
+                </center>
+
+            </div>
+
+        </div>
+
+        <div class = "rooms"></div>
+
+    </div>
+
+    <!----- server socket io module ----->
+    <script type = "text/javascript" src = "/socket.io/socket.io.js"></script>
+    <script type = "text/javascript" src = "scripts/rooms.js"></script>
+</body>
+</html>
