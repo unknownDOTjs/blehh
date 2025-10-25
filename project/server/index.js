@@ -255,10 +255,13 @@ io.on("connection", async (socket)=>{
             host: socket.data.username,
         })
         const foundUser = tokens.find(object => object.token === socket.data.token);
+        if (foundUser){
 
-        foundUser["active-rooms"].push(roomCode)
-        socket.join(roomCode)
-        socket.emit("valid-room", foundUser["active-rooms"], roomCode)
+            foundUser["active-rooms"].push(roomCode)
+            socket.join(roomCode)
+            socket.emit("valid-room", foundUser["active-rooms"], roomCode)
+
+        }
 
         console.log(rooms)
 
