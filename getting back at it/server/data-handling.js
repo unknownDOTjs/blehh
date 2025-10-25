@@ -8,8 +8,8 @@ module.exports = {
         try {
 
             //data base link set up
-            const database = clientReference.db("admin");
-            const collection = database.collection("admin users");
+            const database = clientReference.db("admin_database");
+            const collection = database.collection("admin_users");
             const result = await collection.find({}).toArray();
 
             //returns data base if needed
@@ -29,8 +29,8 @@ module.exports = {
     createUserData: async function(clientReference, createdUsername, createdPassword){
 
         //data base link set up
-        const database = clientReference.db("admin");
-        const collection = database.collection("admin users");
+        const database = clientReference.db("admin_database");
+        const collection = database.collection("admin_users");
 
         //username and password validation. returns [boolean, string]
         const usernameValidation = await validateUserDataInput(collection, "username", createdUsername);
@@ -84,8 +84,8 @@ module.exports = {
 
     updateUserData: async function(clientReference, givenUsername, givenSocketID, givenToken, settingData){
 
-        const database = clientReference.db("admin");
-        const collection = database.collection("admin users");
+        const database = clientReference.db("admin_database");
+        const collection = database.collection("admin_users");
 
         var existingUser = await collection.findOne(
         { username: givenUsername },

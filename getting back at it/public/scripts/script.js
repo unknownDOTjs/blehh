@@ -17,6 +17,22 @@ socket.on("log-user-in", (givenToken, givenUsername)=>{
 
 })
 
+socket.on("failed-login", (loginMessage)=>{
+
+    if (!loginMessage[0]){
+
+        document.getElementById("error").innerHTML = loginMessage[1];
+
+    }
+
+    else{
+
+        document.getElementById("error").innerHTML = ""
+
+    }
+
+})
+
 function sendLoginDetails(){
 
     var username = document.getElementById("inputUSERNAME").value;

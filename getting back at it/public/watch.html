@@ -5,18 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>Document</title>
+
+    <!----- youtube api ----->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
 </head>
 <body>
 
-    <div class = "container" id = "usersListContainer">
-        <h1 class = "header">Users:</h1>
-        <div id = "usersContainer">
+    <center>
+    <div style = "display: flex;">
+        <input class = "input" id = "inputVIDEOID" type = "text" placeholder="Enter youtube link" autocomplete="off"><br>
+        <div class = "button1" onclick = "submitVdeoID()" style = "margin-left: 20px">Enter video</div>
+    </div>
+    </center>
+
+    <div id = "contentContainer">
+
+        <div class = "container" id = "chatContainer">
+
+            <div id = "chat"></div>
+
+            <div id = "chatInputContainer">
+                <input class = "input" id = "chatInput" placeholder="Say something racist.." autocomplete="off">
+                <div class = "button1" id = "chatButton" onclick = "sendMessage()">
+                    <center>Send</center>
+                </div>
+            </div>
+        </div>
+
+        <div class = "container" id = "videoContainer">
+
+            <div id = "player"></div>
 
         </div>
+
+        <div class = "container" id = "usersListContainer">
+            <h1 class = "header">Users:</h1>
+            <div id = "usersContainer">
+
+            </div>
+        </div>
+
     </div>
 
     <!----- server socket io module ----->
     <script type = "text/javascript" src = "/socket.io/socket.io.js"></script>
+
     <script type = "text/javascript" src = "scripts/watch.js"></script>
 </body>
 </html>

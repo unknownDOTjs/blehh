@@ -35,7 +35,7 @@ if (!server.listening){
 else {console.log("Server has already been initiated")}
 
 //mongodb set up
-const uri = "mongodb://localhost:27017/"
+const uri = "mongodb+srv://user1:Cav1te09@cluster0.pvnvqt1.mongodb.net/?appName=Cluster0"
 const client = new MongoClient(uri);
 
 //simple self calling async function to connect to mongo data base
@@ -54,7 +54,11 @@ asyncFunctionCallBack(dataHandler.recieveMongoDataBase, client, true).then((retu
 });
 
 //asyncFunctionCallBack(dataHandler.comparePasword, client, "poop", "Dodona2a").then((value)=>{console.log(value)}) //<-- password compare function
-//asyncFunctionCallBack(dataHandler.createUserData, client, "epic", "gayboy").then((value)=>{console.log(value)}) //<-- creating user function
+asyncFunctionCallBack(dataHandler.createUserData, client, "epic", "gayboy").then((value)=>{console.log(value)}) //<-- creating user function
+asyncFunctionCallBack(dataHandler.createUserData, client, "riley_butt", "iambrown").then((value)=>{console.log(value)})
+asyncFunctionCallBack(dataHandler.createUserData, client, "leftNuttSack", "hairy").then((value)=>{console.log(value)})
+asyncFunctionCallBack(dataHandler.createUserData, client, "tipollae", "Dodona2a").then((value)=>{console.log(value)})
+
 
 //links express app to public folder for clients to access
 app.use(express.static("../public"))
@@ -129,7 +133,11 @@ io.on("connection", async (socket)=>{
 
         }
 
-        else{ console.log(`Failed to login`); console.log(loginStatus) }
+        else{ 
+            console.log(`Failed to login`); 
+            console.log(loginStatus);
+            socket.emit("failed-login", loginStatus)
+        }
 
     })
 
@@ -170,10 +178,21 @@ io.on("connection", async (socket)=>{
     })
 
     //joining room
-    socket.on("joinRoom", (givenRoomCode)=>{
+    socket.on("joinRoom", async (givenRoomCode)=>{
 
-        socket.join(givenRoomCode)
+        socket.join(givenRoomCode);
+        console.log(`joinRoom called in process ${process.pid}`);
         const foundRoom = rooms.find(room => room["room code"] === String(givenRoomCode));
+        rooms.find((room) => {
+            console.log(`ROOM CODE COMPARISON BRUZZZ ${room["room code"]}, ${givenRoomCode}`)
+        });
+
+        for (let i = 0; i < 20; i++){
+
+            console.log(`the found room: ${foundRoom}`);
+
+        }
+
         let existingUser;
         if (foundRoom){
 
@@ -200,10 +219,6 @@ io.on("connection", async (socket)=>{
                 "active-users": foundRoomUsersList,
                 "host": foundRoom["host"],
             })
-
-            for (let i = 0; i < 20; i++){
-                console.log("test----------------------------------------------------------------------")
-            }
 
             socket.to(foundRoom["room code"]).emit("update-user-list",{
                 "room code": foundRoom["room code"],
@@ -245,6 +260,50 @@ io.on("connection", async (socket)=>{
         socket.join(roomCode)
         socket.emit("valid-room", foundUser["active-rooms"], roomCode)
 
+        console.log(rooms)
+
+    })
+
+    //live room info handling
+    socket.on("update-others-playerState", (hostState, hostTimeStamp, hostVideoID, givenRoomCode)=>{
+
+        const foundRoom = rooms.find(room => room["room code"] === givenRoomCode);
+
+        if (foundRoom){
+
+            if (socket.data.username == foundRoom.host){
+
+                console.log(hostState)
+
+                socket.to(givenRoomCode).emit("update-playerState", hostState, hostTimeStamp, hostVideoID);
+
+            }
+
+            else{
+
+                const foundHost = foundRoom["active-users"].find(user => user.username === foundRoom.host);
+                if (foundHost){ io.to(foundHost["socketID"]).emit("request-host-data", socket.id) }
+
+            }
+
+        }
+
+    })
+
+    socket.on("update-specific-user", (hostState, hostTimeStamp, hostVideoID, senderSocketID, givenRoomCode)=>{
+
+        const foundRoom = rooms.find(room => room["room code"] === givenRoomCode);
+        const foundHost = foundRoom["active-users"].find(user => user.socketID === socket.id);
+
+        if (foundHost){ io.to(senderSocketID).emit("recieve-requested-data", 
+        hostState, hostTimeStamp, hostVideoID) }
+
+    })
+
+    socket.on("send-message", (sentMessage, givenRoomCode)=>{
+
+        io.to(givenRoomCode).emit("emit-message-to-all", sentMessage, socket.data.username);
+
     })
 
     //disconnect handling
@@ -273,13 +332,37 @@ io.on("connection", async (socket)=>{
                         foundRoomUsersList.push(activeUsersReference[i].username);
                     }
 
-                    socket.to(rooms[i]["room code"]).emit("update-user-list",{
-                        "room code": rooms[i]["room code"],
-                        "active-users": foundRoomUsersList,
-                        "host": rooms[i]["host"],
-                    })
+                    if (socket.data.username === rooms[i]["host"]){
 
-                    console.log(`blaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh  ${rooms[i]["active-users"]}  blaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh`)
+                        socket.to(rooms[i]["room code"]).emit("host-left-room");
+
+                        //final clean up---
+                        for (let usersIndex = 0; usersIndex < rooms[i]["active-users"].length; usersIndex++){
+
+                            if (rooms[i]["active-users"][i]["socketID"]){
+
+                                if (io.sockets.sockets.has(rooms[i]["active-users"][i]["socketID"])){
+
+                                    io.in(rooms[i]["active-users"][i]["socketID"]).disconnectSockets(true);
+
+                                }
+
+                            }
+                        }
+                        setTimeout(()=>{ rooms = rooms.filter(room => room["active-users"].length > 0); }, 2000)
+
+                    }
+
+                    else{
+
+                        socket.to(rooms[i]["room code"]).emit("update-user-list",{
+                            "room code": rooms[i]["room code"],
+                            "active-users": foundRoomUsersList,
+                            "host": rooms[i]["host"],
+                        });
+
+
+                    }
 
                 }
 
@@ -364,7 +447,7 @@ async function roomCheckLoop(){
 
     console.log(rooms);
 
-    await wait(10000);
+    await wait(25000);
 
     roomCheckLoop();
     
