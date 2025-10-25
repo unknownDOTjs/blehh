@@ -198,8 +198,7 @@ io.on("connection", async (socket)=>{
 
             existingUser = foundRoom["active-users"].findIndex(user =>
             user.username === socket.data.username &&
-            user.token === socket.data.token &&
-            user.socketID === socket.id)
+            user.token === socket.data.token)
 
         }
         if (existingUser == -1){
