@@ -126,7 +126,7 @@ io.on("connection", async (socket)=>{
         loginStatus = await asyncFunctionCallBack(dataHandler.comparePasword, client, givenUsername, givenPassword);
         const generatedToken = String(Math.random().toString(36).substring(2));
         const foundToken = tokens.find(object => object.username === givenUsername);
-
+        socket.emit("give-login-status", loginStatus)
         if (loginStatus[0]){
 
             await asyncFunctionCallBack(userHandler.loginUser, socket, generatedToken, givenUsername, foundToken, tokens)
@@ -136,7 +136,6 @@ io.on("connection", async (socket)=>{
         else{ 
             console.log(`Failed to login`); 
             console.log(loginStatus);
-            socket.emit("failed-login", loginStatus)
         }
 
     })
@@ -228,6 +227,9 @@ io.on("connection", async (socket)=>{
             console.log("added user to room")
             console.log(`Active users length: ${foundRoom["active-users"].length}`)
 
+            let extractedRoomData = extractRoomData();
+            socket.broadcast.emit("server-active-rooms", extractedRoomData);
+
         }
 
         //console.log(rooms)
@@ -263,6 +265,18 @@ io.on("connection", async (socket)=>{
         }
 
         console.log(rooms)
+        
+        let extractedRoomData = extractRoomData();
+        socket.broadcast.emit("server-active-rooms", extractedRoomData);
+
+    })
+
+    //requesting rooms
+    socket.on("request-active-rooms", ()=>{
+
+        let extractedRoomData = extractRoomData();
+
+        socket.emit("server-active-rooms", extractedRoomData);
 
     })
 
@@ -451,6 +465,9 @@ async function roomCheckLoop(){
 
     }
 
+    let extractedRoomData = extractRoomData();
+    io.sockets.emit("server-active-rooms", extractedRoomData);
+
     console.log(rooms);
 
     await wait(25000);
@@ -488,5 +505,31 @@ function createRoomCode(){
     }
 
     return roomCode
+
+}
+
+function extractRoomData(){
+
+        let serverRoomData = [];
+
+        for (let i = 0; i < rooms.length; i++){
+
+            if (rooms[i]){
+
+                let userCount = 0;
+
+                while (userCount < rooms[i]["active-users"].length){ userCount ++; }
+
+                serverRoomData.push({
+                    "room code": rooms[i]["room code"],
+                    "host": rooms[i]["host"],
+                    "user count": userCount
+                })
+
+            }
+
+        }
+
+        return serverRoomData;
 
 }

@@ -13,23 +13,33 @@ socket.on("log-user-in", (givenToken, givenUsername)=>{
 
     console.log(`You have logged in. Username ${givenUsername}, token: ${givenToken}`)
 
-    window.location = "rooms.html";
+    document.getElementById("loginButton").disabled = true;
+
+    setTimeout(()=>{
+
+        window.location = "rooms.html";
+
+    },2000)
 
 })
 
-socket.on("failed-login", (loginMessage)=>{
+socket.on("give-login-status", (loginMessage)=>{
+
+
 
     if (!loginMessage[0]){
 
-        document.getElementById("error").innerHTML = loginMessage[1];
+        document.getElementById("error").style.color = "red"
 
     }
 
     else{
 
-        document.getElementById("error").innerHTML = ""
+        document.getElementById("error").style.color = "green"
 
     }
+
+    document.getElementById("error").innerHTML = loginMessage[1];
 
 })
 

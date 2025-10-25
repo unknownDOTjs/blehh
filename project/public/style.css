@@ -98,8 +98,6 @@ body{
     width: 80%;
     height: max-content;
 
-    background-color: blue;
-
 }
 
 .button1{
@@ -133,7 +131,7 @@ body{
 
 }
 
-.rooms{
+#rooms{
 
     position: absolute;
     top: 50%;
@@ -143,9 +141,17 @@ body{
     height: 100%;
     width: 60%;
 
-    background-color: black;
+    background-color: green;
 
     overflow-y: auto;
+    overflow-x: hidden;
+
+}
+
+.rooms h1{
+
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
 
 }
 
@@ -214,16 +220,34 @@ body{
 
     left: 0;
 
-    width: 60%;
-    font-size: 2vh;
+    flex: 1;
+    font-size: 3vh;
+    padding: 10px;
 
 }
 
 #chatButton{
 
-    padding: 0; 
-    float: right; 
+    display: flex;
+
+    padding: 1px;
+    width: 50px;
     background-color: blue;
+    height: 100%;
+
+    transition: filter 0.18s ease-in-out;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+
+    margin-left: auto;
+
+}
+
+#chatButton:hover{
+
+    filter: brightness(0.7);
 
 }
 
@@ -299,7 +323,7 @@ body{
 
     }
 
-    .rooms{
+    #rooms{
 
         position: relative;
         top: 0;
@@ -308,8 +332,6 @@ body{
 
         height: 70%;
         width: 100%;
-
-        background-color: black;
 
     }
 
@@ -360,7 +382,9 @@ body{
 
     #contentContainer{
 
-        top: 30%;
+        position: relative;
+
+        transform: none;
 
         display: block;
         height: 400px;
@@ -381,6 +405,17 @@ body{
 
     }
 
+    #chatInputContainer{
+
+        height: 50px;
+
+    }
+
+    #chatButton{
+
+        width: 80px;
+
+    }
 
     #videoContainer{
 

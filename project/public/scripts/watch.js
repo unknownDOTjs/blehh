@@ -7,6 +7,12 @@ var localRooms = localStorage.getItem("active-rooms");
 var localRoomData = "";
 var isInRoom = false;
 
+//-----
+var player;
+
+var keys = {}
+var entered_pressed = false;
+
 socket.on("established-connection", ()=>{
 
     socket.emit("connection-protocal", localToken)
@@ -129,7 +135,6 @@ function updateUsersList(roomData){
 
 }
 
-var player;
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('player', {
     height: '100%',
@@ -214,3 +219,40 @@ function sendMessage(){
     }
 
 }
+
+
+
+
+
+//jquery
+
+$(document).keydown(function (e){
+
+    if (e.which == 13){
+
+        if (!entered_pressed){
+
+            entered_pressed = true;
+            sendMessage();
+
+        }
+
+    }
+
+});
+
+
+
+
+
+
+
+$(document).keyup(function (e) {
+
+    if (e.which == 13){
+
+        entered_pressed = false;
+
+    }
+
+});
