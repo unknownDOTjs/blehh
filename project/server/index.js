@@ -228,6 +228,7 @@ io.on("connection", async (socket)=>{
             console.log(`Active users length: ${foundRoom["active-users"].length}`)
 
             let extractedRoomData = extractRoomData();
+            socket.to(foundRoom["room code"]).emit("greet-user", socket.data.username)
             socket.broadcast.emit("server-active-rooms", extractedRoomData);
 
         }
@@ -371,6 +372,7 @@ io.on("connection", async (socket)=>{
 
                     else{
 
+                        socket.to(rooms[i]["room code"]).emit("goodbye-user", socket.data.username)
                         socket.to(rooms[i]["room code"]).emit("update-user-list",{
                             "room code": rooms[i]["room code"],
                             "active-users": foundRoomUsersList,

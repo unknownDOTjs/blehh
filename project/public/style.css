@@ -3,13 +3,14 @@
 
 body{
 
-
+    background-color: #14213D;
 
 }
 
 .input{
 
     font-size: 30px;
+    font-family: "Open Sans", sans-serif;
 
 }
 
@@ -42,6 +43,8 @@ body{
 
     transition: transform 0.1s ease-in-out;
 
+    font-family: "Open Sans", sans-serif;
+
 }
 
 #loginButton:hover{
@@ -54,6 +57,8 @@ body{
 
     color: red;
     height: max-content;
+
+    font-family: "Open Sans", sans-serif;
 
 }
 
@@ -69,7 +74,9 @@ body{
 
     transform: translate(-50%, -50%);
 
-    background-color: blue;
+    font-family: "Open Sans", sans-serif;
+
+    color: white;
 
 }
 
@@ -82,8 +89,6 @@ body{
 
     height: 100%;
     width: 40%;
-
-    background-color: green;
 
 }
 
@@ -115,11 +120,14 @@ body{
 
     font-size: 2.3vh;
 
-    background-color: pink;
+    background-color: #FCA311;
+    color: white;
 
     user-select: none;
 
     cursor: pointer;
+
+    font-family: "Open Sans", sans-serif;
 
     transition: transform 0.2s ease-in-out;
 
@@ -141,7 +149,7 @@ body{
     height: 100%;
     width: 60%;
 
-    background-color: green;
+    background-color: #0d172d;
 
     overflow-y: auto;
     overflow-x: hidden;
@@ -160,9 +168,8 @@ body{
 #contentContainer{
 
     position: absolute;
-    top: 50%;
+    top: 100px;
     left: 0;
-    transform: translateY(-50%);
 
     width: 100%;
     height: 80%;
@@ -170,8 +177,6 @@ body{
     display: flex;
 
     align-items: center;
-
-    background-color: red;
 
 }
 
@@ -183,9 +188,6 @@ body{
 
     width: 30%;
     height: 100%;
-
-    background-color: aqua;
-
 }
 
 #chat{
@@ -198,10 +200,12 @@ body{
     width: 100%;
     height: 100%;
 
-    background-color: rgb(170, 170, 170);
+    background-color: #0d172d;
 
     overflow-y: auto;
     overflow-x: hidden;
+
+    font-family: "Open Sans", sans-serif;
 
 }
 
@@ -222,7 +226,8 @@ body{
 
     flex: 1;
     font-size: 3vh;
-    padding: 10px;
+    padding: 15px;
+    font-family: "Open Sans", sans-serif;
 
 }
 
@@ -230,9 +235,9 @@ body{
 
     display: flex;
 
-    padding: 1px;
+    padding: 6.5px;
     width: 50px;
-    background-color: blue;
+    background-color: #FCA311;
     height: 100%;
 
     transition: filter 0.18s ease-in-out;
@@ -242,6 +247,8 @@ body{
     cursor: pointer;
 
     margin-left: auto;
+
+    color: white;
 
 }
 
@@ -260,7 +267,7 @@ body{
     width: 60%;
     height: 100%;
 
-    background-color: blueviolet;
+    background-color: #060a13;
 
 }
 
@@ -277,6 +284,13 @@ body{
 
 }
 
+#youtubeLinkContainer{
+
+    display: flex;
+    width: 300px;
+
+}
+
 #usersListContainer{
 
     position: relative;
@@ -286,7 +300,11 @@ body{
     width: 200px;
     height: 100%;
 
-    background-color: blue;
+    color: white;
+
+    text-align: center;
+
+    font-family: "Open Sans", sans-serif;
 
 }
 
@@ -298,6 +316,8 @@ body{
     height: 400px;
 
     overflow-y: auto;
+
+    text-align: center;
 
 }
 
@@ -318,8 +338,6 @@ body{
 
         height: 30%;
         width: 100%;
-
-        background-color: green;
 
     }
 
@@ -353,9 +371,6 @@ body{
         padding-bottom: 10px;
 
         font-size: 2vh;
-
-        background-color: pink;
-
     }
 
     .button1:hover{
@@ -383,6 +398,7 @@ body{
     #contentContainer{
 
         position: relative;
+        transform: translateX(-50%);
 
         transform: none;
 
@@ -414,6 +430,8 @@ body{
     #chatButton{
 
         width: 80px;
+        padding: 0px;
+        font-family: "Open Sans", sans-serif;
 
     }
 
@@ -426,8 +444,16 @@ body{
 
         width: 100%;
         height: 400px;
+    }
 
-        background-color: blueviolet;
+    #youtubeLinkContainer{
+        left: 0;
+        width: 100%;
+    }
+
+    #inputVIDEOID{
+
+        font-size: 15px;
 
     }
 

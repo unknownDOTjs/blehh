@@ -35,7 +35,7 @@ socket.on("give-login-status", (loginMessage)=>{
 
     else{
 
-        document.getElementById("error").style.color = "green"
+        document.getElementById("error").style.color = "#20bf55"
 
     }
 

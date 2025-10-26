@@ -88,8 +88,44 @@ socket.on("emit-message-to-all", (sentMessage, username)=>{
     const chatReference = document.getElementById("chat");
     let verticalScroll = chatReference.scrollTop;
     const maxScroll = chatReference.scrollHeight - chatReference.clientHeight;
-    chatReference.innerHTML += `<h1 style = "display: flex; width: 100%;"><p style = "color: blue">${username}:&nbsp;</p>
-    <p>${sentMessage}</p></h1>`
+    chatReference.innerHTML += `<h1 style = "display: flex; width: 100%;"><p style = "color: #FCA311">${username}:&nbsp;</p>
+    <p style = "color: white">${sentMessage}</p></h1>`
+
+    if (verticalScroll >= maxScroll - 100){
+
+        chatReference.scrollTop = chatReference.scrollHeight;
+
+    }
+
+    console.log(`scroll: ${verticalScroll}`);
+
+})
+
+socket.on("greet-user", (joinedUser)=>{
+
+    const chatReference = document.getElementById("chat");
+    let verticalScroll = chatReference.scrollTop;
+    const maxScroll = chatReference.scrollHeight - chatReference.clientHeight;
+    chatReference.innerHTML += `<h1 style = "display: flex; width: 100%;"><p style = "color: white">${String(joinedUser)}&nbsp;</p>
+    <p style = "color: #FCA311">has joined the room :D</p></h1>`
+
+    if (verticalScroll >= maxScroll - 100){
+
+        chatReference.scrollTop = chatReference.scrollHeight;
+
+    }
+
+    console.log(`scroll: ${verticalScroll}`);
+
+})
+
+socket.on("goodbye-user", (leftUser)=>{
+
+    const chatReference = document.getElementById("chat");
+    let verticalScroll = chatReference.scrollTop;
+    const maxScroll = chatReference.scrollHeight - chatReference.clientHeight;
+    chatReference.innerHTML += `<h1 style = "display: flex; width: 100%;"><p style = "color: white">${String(leftUser)}&nbsp;</p>
+    <p style = "color: #FCA311">has left the room :(</p></h1>`
 
     if (verticalScroll >= maxScroll - 100){
 
@@ -169,6 +205,8 @@ function submitVdeoID(){
 
     player.cueVideoById(videoID);
     player.playVideo();
+
+    document.getElementById("inputVIDEOID").value = ""
 
 }
 
