@@ -153,12 +153,15 @@ body{
 
     overflow-y: auto;
     overflow-x: hidden;
+    text-align: center;
 
 }
 
-.rooms h1{
+#rooms h1{
 
-    background-color: rgba(0, 0, 0, 0.5);
+    padding-top: 20px;
+    padding-bottom: 20px;
+    background-color: rgba(22, 9, 9, 0.3);
     color: white;
 
 }
@@ -205,6 +208,7 @@ body{
     overflow-y: auto;
     overflow-x: hidden;
 
+    font-size: 10px;
     font-family: "Open Sans", sans-serif;
 
 }
@@ -255,6 +259,12 @@ body{
 #chatButton:hover{
 
     filter: brightness(0.7);
+
+}
+
+.serverNote{
+
+    background-color: rgba(0, 0, 0, 0.2);
 
 }
 

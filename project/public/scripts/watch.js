@@ -106,7 +106,7 @@ socket.on("greet-user", (joinedUser)=>{
     const chatReference = document.getElementById("chat");
     let verticalScroll = chatReference.scrollTop;
     const maxScroll = chatReference.scrollHeight - chatReference.clientHeight;
-    chatReference.innerHTML += `<h1 style = "display: flex; width: 100%;"><p style = "color: white">${String(joinedUser)}&nbsp;</p>
+    chatReference.innerHTML += `<h1 class = "serverNote" style = "display: flex; width: 100%;"><p style = "color: white">${String(joinedUser)}&nbsp;</p>
     <p style = "color: #FCA311">has joined the room :D</p></h1>`
 
     if (verticalScroll >= maxScroll - 100){
@@ -124,7 +124,7 @@ socket.on("goodbye-user", (leftUser)=>{
     const chatReference = document.getElementById("chat");
     let verticalScroll = chatReference.scrollTop;
     const maxScroll = chatReference.scrollHeight - chatReference.clientHeight;
-    chatReference.innerHTML += `<h1 style = "display: flex; width: 100%;"><p style = "color: white">${String(leftUser)}&nbsp;</p>
+    chatReference.innerHTML += `<h1 class = "serverNote" style = "display: flex; width: 100%;"><p style = "color: white">${String(leftUser)}&nbsp;</p>
     <p style = "color: #FCA311">has left the room :(</p></h1>`
 
     if (verticalScroll >= maxScroll - 100){
@@ -200,13 +200,31 @@ function onPlayerStateChange(event) {
 function submitVdeoID(){
 
     const submittedLink = document.getElementById("inputVIDEOID").value;
-    const extractedLinkData = String(submittedLink).split("v=");
-    const videoID = extractedLinkData[1].split("&")[0];
 
-    player.cueVideoById(videoID);
-    player.playVideo();
+    if (String(submittedLink).includes("youtu.be")){
 
-    document.getElementById("inputVIDEOID").value = ""
+        const extractedLinkData = String(submittedLink).split("youtu.be/");
+        const videoID = extractedLinkData[1].split("?")[0];
+
+        player.cueVideoById(videoID);
+        player.playVideo();
+
+        document.getElementById("inputVIDEOID").value = ""
+    
+
+    }
+
+    else{
+
+        const extractedLinkData = String(submittedLink).split("v=");
+        const videoID = extractedLinkData[1].split("&")[0];
+
+        player.cueVideoById(videoID);
+        player.playVideo();
+
+        document.getElementById("inputVIDEOID").value = ""
+
+    }
 
 }
 
