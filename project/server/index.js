@@ -57,7 +57,10 @@ asyncFunctionCallBack(dataHandler.recieveMongoDataBase, client, true).then((retu
 asyncFunctionCallBack(dataHandler.createUserData, client, "epic", "gayboy").then((value)=>{console.log(value)}) //<-- creating user function
 asyncFunctionCallBack(dataHandler.createUserData, client, "riley_butt", "iambrown").then((value)=>{console.log(value)})
 asyncFunctionCallBack(dataHandler.createUserData, client, "leftNuttSack", "hairy").then((value)=>{console.log(value)})
-asyncFunctionCallBack(dataHandler.createUserData, client, "tipollae", "Dodona2a").then((value)=>{console.log(value)})
+asyncFunctionCallBack(dataHandler.createUserData, client, "4incher", "ayo?").then((value)=>{console.log(value)})
+asyncFunctionCallBack(dataHandler.createUserData, client, "peep", "justapassword").then((value)=>{console.log(value)})
+asyncFunctionCallBack(dataHandler.createUserData, client, "toenail", "clippers").then((value)=>{console.log(value)})
+asyncFunctionCallBack(dataHandler.createUserData, client, "minor", "hmmmm").then((value)=>{console.log(value)})
 
 
 //links express app to public folder for clients to access
