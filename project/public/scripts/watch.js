@@ -73,19 +73,19 @@ socket.on("request-host-data", (senderSocketID)=>{
     var videoId = new URL(videoUrl).searchParams.get('v');
 
     socket.emit("update-specific-user", player.getPlayerState(), 
-    player.getCurrentTime(), String(videoId), senderSocketID, localRoomData["room code"])
+    player.getCurrentTime(), String(videoId), parseFloat(player.getPlaybackRate()), senderSocketID, localRoomData["room code"])
 
 })
 
-socket.on("recieve-requested-data", (hostState, hostTimeStamp, hostVideoID)=>{
+socket.on("recieve-requested-data", (hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed)=>{
 
-    updateClientPlayer(hostState, hostTimeStamp, hostVideoID)
+    updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed)
 
 })
 
-socket.on("update-playerState", (hostState, hostTimeStamp, hostVideoID)=>{
+socket.on("update-playerState", (hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed)=>{
 
-    updateClientPlayer(hostState, hostTimeStamp, hostVideoID)
+    updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed)
 
 })
 
@@ -184,7 +184,8 @@ function onYouTubeIframeAPIReady() {
     videoId: '7yRV9YyJLhs', // A default video to load
     events: {
       'onReady': onPlayerReady,
-      'onStateChange': onPlayerStateChange
+      'onStateChange': onPlayerStateChange,
+      'onPlaybackRateChange': onPlayerRateChange
     }
   });
 }
@@ -199,7 +200,17 @@ function onPlayerStateChange(event) {
     var videoId = new URL(videoUrl).searchParams.get('v');
 
     socket.emit("update-others-playerState", player.getPlayerState(), 
-    player.getCurrentTime(), String(videoId), localRoomData["room code"])
+    player.getCurrentTime(), String(videoId), parseFloat(player.getPlaybackRate()), localRoomData["room code"]);
+
+}
+
+function onPlayerRateChange(event){
+
+    var videoUrl = event.target.getVideoUrl();
+    var videoId = new URL(videoUrl).searchParams.get('v');
+
+    socket.emit("update-others-playerState", player.getPlayerState(), 
+    player.getCurrentTime(), String(videoId), parseFloat(player.getPlaybackRate()), localRoomData["room code"]);
 
 }
 
@@ -234,7 +245,7 @@ function submitVdeoID(){
 
 }
 
-function updateClientPlayer(hostState, hostTimeStamp, hostVideoID){
+function updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed){
 
     if (player){
 
@@ -259,6 +270,25 @@ function updateClientPlayer(hostState, hostTimeStamp, hostVideoID){
             if (hostState === 1){ player.playVideo() }
 
             if (hostState == 2){ player.pauseVideo() }
+
+        }
+
+        if (parseFloat(player.getPlaybackRate()) !== parseFloat(hostPlayBackSpeed)){
+
+            player.setPlaybackRate(hostPlayBackSpeed);
+
+            const chatReference = document.getElementById("chat");
+            let verticalScroll = chatReference.scrollTop;
+            const maxScroll = chatReference.scrollHeight - chatReference.clientHeight;
+            chatReference.innerHTML += `<h1 class = "serverNote" style = "display: flex; 
+            width: 100%;"><p style = "color: white">${localRoomData["host"]} (host),&nbsp;</p>
+            <p style = "color: #FCA311">has changed the playback speed to ${hostPlayBackSpeed}</p></h1>`
+
+            if (verticalScroll >= maxScroll - 100){
+
+                chatReference.scrollTop = chatReference.scrollHeight;
+
+            }
 
         }
 

@@ -304,7 +304,7 @@ io.on("connection", async (socket)=>{
     })
 
     //live room info handling
-    socket.on("update-others-playerState", (hostState, hostTimeStamp, hostVideoID, givenRoomCode)=>{
+    socket.on("update-others-playerState", (hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed, givenRoomCode)=>{
 
         const foundRoom = rooms.find(room => room["room code"] === givenRoomCode);
 
@@ -314,7 +314,7 @@ io.on("connection", async (socket)=>{
 
                 console.log(hostState)
 
-                socket.to(givenRoomCode).emit("update-playerState", hostState, hostTimeStamp, hostVideoID);
+                socket.to(givenRoomCode).emit("update-playerState", hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed);
 
             }
 
@@ -329,13 +329,13 @@ io.on("connection", async (socket)=>{
 
     })
 
-    socket.on("update-specific-user", (hostState, hostTimeStamp, hostVideoID, senderSocketID, givenRoomCode)=>{
+    socket.on("update-specific-user", (hostState, hostTimeStamp, hostVideoID, playBackSpeed, senderSocketID, givenRoomCode)=>{
 
         const foundRoom = rooms.find(room => room["room code"] === givenRoomCode);
         const foundHost = foundRoom["active-users"].find(user => user.socketID === socket.id);
 
         if (foundHost){ io.to(senderSocketID).emit("recieve-requested-data", 
-        hostState, hostTimeStamp, hostVideoID) }
+        hostState, hostTimeStamp, hostVideoID, playBackSpeed) }
 
     })
 
