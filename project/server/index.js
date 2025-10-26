@@ -9,7 +9,30 @@ const bcrypt = require("bcrypt");
 
 //importing express and creating a new express app instance
 const express = require("express");
+const path = require('path');
 const app = express();
+
+// Serve static files
+app.use(express.static("../public"));
+
+// CSP header — everything in one string
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy",
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.youtube.com https://www.google.com https://s.ytimg.com; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; " +
+    "img-src 'self' data: https://i.ytimg.com; " +
+    "connect-src 'self' https://www.youtube.com https://www.google.com;"
+  );
+  next();
+});
+
+// Serve your index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 //creates an http server using the created express app and attaches socket io
 const server = require("http").Server(app);
@@ -61,10 +84,6 @@ asyncFunctionCallBack(dataHandler.createUserData, client, "4incher", "ayo?").the
 asyncFunctionCallBack(dataHandler.createUserData, client, "peep", "justapassword").then((value)=>{console.log(value)})
 asyncFunctionCallBack(dataHandler.createUserData, client, "toenail", "clippers").then((value)=>{console.log(value)})
 asyncFunctionCallBack(dataHandler.createUserData, client, "minor", "hmmmm").then((value)=>{console.log(value)})
-
-
-//links express app to public folder for clients to access
-app.use(express.static("../public"))
 
 //runs BEFORE a user has fully connected
 /*io.use((socket, next)=>{

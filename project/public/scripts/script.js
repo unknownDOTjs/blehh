@@ -19,7 +19,7 @@ socket.on("log-user-in", (givenToken, givenUsername)=>{
 
         window.location = "rooms.html";
 
-    },2000)
+    },800)
 
 })
 

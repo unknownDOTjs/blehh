@@ -34,7 +34,7 @@ socket.on("valid-room", (serverRoomCode, joinedRoom)=>{
 
     localStorage.setItem("active-rooms", serverRoomCode);
     alert(`Joining room...`);
-    window.location = `watch.html#${joinedRoom}`;
+    window.open(`watch.html#${joinedRoom}`);
 
 })
 

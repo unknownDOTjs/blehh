@@ -13,6 +13,12 @@ var player;
 var keys = {}
 var entered_pressed = false;
 
+socket.on('disconnect', function() {
+    alert("You have been disconnected from the server");
+    window.location = "rooms.html"
+});
+
+
 socket.on("established-connection", ()=>{
 
     socket.emit("connection-protocal", localToken)
