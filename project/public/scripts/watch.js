@@ -302,7 +302,8 @@ function updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackS
 
         }
 
-        if (parseFloat(player.getPlaybackRate()) !== parseFloat(hostPlayBackSpeed)){
+        if (parseFloat(player.getPlaybackRate()) !== parseFloat(hostPlayBackSpeed) && 
+        parseFloat(hostPlayBackSpeed) !== NaN){
 
             player.setPlaybackRate(hostPlayBackSpeed);
 
