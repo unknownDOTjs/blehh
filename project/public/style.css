@@ -290,6 +290,12 @@ body{
 
 }
 
+.serverMessage{
+
+    padding-right: 30px;
+
+}
+
 #videoContainer{
 
     position: relative;

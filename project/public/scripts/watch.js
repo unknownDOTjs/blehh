@@ -313,8 +313,7 @@ function updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackS
             let verticalScroll = chatReference.scrollTop;
             const maxScroll = chatReference.scrollHeight - chatReference.clientHeight;
             chatReference.innerHTML += `<h1 class = "serverNote" style = "display: flex; 
-            width: 100%;"><p style = "color: white">${localRoomData["host"]} (host)&nbsp;</p>
-            <p style = "color: #FCA311">has changed the playback speed to ${hostPlayBackSpeed}</p></h1>`
+            width: 100%;"><p style = "color: white">${localRoomData["host"]} (host)</p><p class = "serverMessage" style = "color: #FCA311">has changed the playback speed to ${hostPlayBackSpeed}</p></h1>`
 
             if (verticalScroll >= maxScroll - 100){
 
