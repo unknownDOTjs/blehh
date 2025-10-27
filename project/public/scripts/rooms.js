@@ -34,13 +34,19 @@ socket.on("valid-room", (serverRoomCode, joinedRoom)=>{
 
     localStorage.setItem("active-rooms", serverRoomCode);
     alert(`Joining room...`);
-    window.open(`watch.html#${joinedRoom}`);
+    window.location = `watch.html#${joinedRoom}`;
 
 })
 
 socket.on("invalid-room", ()=>{
 
     alert("Invalid room code.")
+
+})
+
+socket.on("failed-to-create-room", ()=>{
+
+    alert("Failed to create room. Please try again.")
 
 })
 

@@ -7,14 +7,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <title>Document</title>
+    <title>yuzzwatch</title>
 
     <!----- jquery ----->
     <script src = "scripts/jquery.js"></script>
 
 </head>
-<body>
-
+<body onload = "updateTitle(); playerElementReady()">
     <div id = "youtubeLinkContainer">
         <input class = "input" id = "inputVIDEOID" type = "text" placeholder="Enter youtube link" autocomplete="off"><br>
         <div class = "button1" onclick = "submitVdeoID()" style = "margin-left: 20px">Enter video</div>
@@ -48,10 +47,6 @@
         </div>
 
     </div>
-
-
-    <!----- youtube api ----->
-    <script src="https://www.youtube.com/iframe_api"></script>
 
     <!----- server socket io module ----->
     <script type = "text/javascript" src = "/socket.io/socket.io.js"></script>

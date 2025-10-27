@@ -51,6 +51,9 @@ socket.on("user-successfully-joined-room", (roomData)=>{
     localRoomData = roomData;
     updateUsersList(localRoomData);
 
+    socket.emit("update-specific-user", player.getPlayerState(), 
+    player.getCurrentTime(), String(videoId), parseFloat(player.getPlaybackRate()), senderSocketID, localRoomData["room code"])
+
 })
 
 socket.on("host-left-room", ()=>{
@@ -95,7 +98,7 @@ socket.on("emit-message-to-all", (sentMessage, username)=>{
     let verticalScroll = chatReference.scrollTop;
     const maxScroll = chatReference.scrollHeight - chatReference.clientHeight;
     chatReference.innerHTML += `<h1 style = "display: flex; width: 100%;"><p style = "color: #FCA311">${username}:&nbsp;</p>
-    <p style = "color: white">${sentMessage}</p></h1>`
+    <p class = "message" style = "color: white">${sentMessage}</p></h1>`
 
     if (verticalScroll >= maxScroll - 100){
 
@@ -177,11 +180,23 @@ function updateUsersList(roomData){
 
 }
 
+function playerElementReady(){
+    const playerContainer = document.getElementById("player");
+    if (!playerContainer){playerElementReady(); return}
+
+    const script = document.createElement("script");
+    script.src = "https://www.youtube.com/iframe_api";
+    document.body.appendChild(script);
+}
+
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('player', {
     height: '100%',
     width: '100%',
     videoId: '7yRV9YyJLhs', // A default video to load
+    playerVars: {
+        'autoplay': 1, // This enables autoplay
+    },
     events: {
       'onReady': onPlayerReady,
       'onStateChange': onPlayerStateChange,
@@ -191,12 +206,20 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerReady(event) {
-    event.target.playVideo();
+    const playerContainer = document.getElementById("player");
+    if (!playerContainer || !player){onPlayerReady(); return}
+    player.playVideo();
+    onPlayerStateChange();
+
 }
 
 function onPlayerStateChange(event) {
+
+    const playerContainer = document.getElementById("player");
+    if (!playerContainer || !player){onPlayerStateChange(); return}
+
     // You can add logic here to handle different states (e.g., play, pause, end).
-    var videoUrl = event.target.getVideoUrl();
+    var videoUrl = player.getVideoUrl();
     var videoId = new URL(videoUrl).searchParams.get('v');
 
     socket.emit("update-others-playerState", player.getPlayerState(), 
@@ -205,6 +228,9 @@ function onPlayerStateChange(event) {
 }
 
 function onPlayerRateChange(event){
+
+    const playerContainer = document.getElementById("player");
+    if (!playerContainer){return}
 
     var videoUrl = event.target.getVideoUrl();
     var videoId = new URL(videoUrl).searchParams.get('v');
@@ -215,6 +241,9 @@ function onPlayerRateChange(event){
 }
 
 function submitVdeoID(){
+
+    const playerContainer = document.getElementById("player");
+    if (!playerContainer){return}
 
     const submittedLink = document.getElementById("inputVIDEOID").value;
 
@@ -281,7 +310,7 @@ function updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackS
             let verticalScroll = chatReference.scrollTop;
             const maxScroll = chatReference.scrollHeight - chatReference.clientHeight;
             chatReference.innerHTML += `<h1 class = "serverNote" style = "display: flex; 
-            width: 100%;"><p style = "color: white">${localRoomData["host"]} (host),&nbsp;</p>
+            width: 100%;"><p style = "color: white">${localRoomData["host"]} (host)&nbsp;</p>
             <p style = "color: #FCA311">has changed the playback speed to ${hostPlayBackSpeed}</p></h1>`
 
             if (verticalScroll >= maxScroll - 100){
@@ -312,7 +341,12 @@ function sendMessage(){
 
 }
 
+function updateTitle(){
 
+    const roomCode = String(window.location.href).split("#");
+    document.title = `yuzzwatch - room: ${roomCode[1]}`;
+    
+}
 
 
 

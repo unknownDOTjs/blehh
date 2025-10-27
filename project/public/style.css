@@ -213,9 +213,19 @@ body{
 
 }
 
-#chat h1{
+#chat h1 {
 
-    margin-left: 10px;
+    padding: 10px;
+
+}
+
+.message{
+
+    word-break: break-word; 
+    overflow-wrap: break-word; 
+    hyphens: auto;
+
+    padding-right: 30px;
 
 }
 
@@ -360,7 +370,7 @@ body{
     #rooms{
 
         position: relative;
-        top: 0;
+        top: 40px;
         transform: none;
         left: 0;
 

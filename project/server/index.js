@@ -19,12 +19,12 @@ app.use(express.static("../public"));
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy",
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.youtube.com https://www.google.com https://s.ytimg.com; " +
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.youtube.com https://s.ytimg.com; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src 'self' https://fonts.gstatic.com; " +
-    "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; " +
-    "img-src 'self' data: https://i.ytimg.com; " +
-    "connect-src 'self' https://www.youtube.com https://www.google.com;"
+    "frame-src https://www.youtube.com https://www.youtube-nocookie.com; " +
+    "img-src 'self' data: https://i.ytimg.com https://www.youtube.com; " +
+    "connect-src 'self' https://www.youtube.com https://s.ytimg.com https://youtube.googleapis.com;"
   );
   next();
 });
@@ -272,25 +272,35 @@ io.on("connection", async (socket)=>{
 
         }
 
-        rooms.push
-        ({
-            "room code": roomCode,
-            "active-users": [],
-            host: socket.data.username,
-        })
-        const foundUser = tokens.find(object => object.token === socket.data.token);
-        if (foundUser){
+        if (socket.data.username){
 
-            foundUser["active-rooms"].push(roomCode)
-            socket.join(roomCode)
-            socket.emit("valid-room", foundUser["active-rooms"], roomCode)
+            rooms.push
+            ({
+                "room code": roomCode,
+                "active-users": [],
+                host: socket.data.username,
+            })
+            const foundUser = tokens.find(object => object.token === socket.data.token);
+            if (foundUser){
+
+                foundUser["active-rooms"].push(roomCode)
+                socket.join(roomCode)
+                socket.emit("valid-room", foundUser["active-rooms"], roomCode)
+
+            }
+
+            console.log(rooms)
+            
+            let extractedRoomData = extractRoomData();
+            socket.broadcast.emit("server-active-rooms", extractedRoomData);
 
         }
 
-        console.log(rooms)
-        
-        let extractedRoomData = extractRoomData();
-        socket.broadcast.emit("server-active-rooms", extractedRoomData);
+        else{
+
+            socket.emit("failed-to-create-room")
+
+        }
 
     })
 
@@ -404,32 +414,36 @@ io.on("connection", async (socket)=>{
 
                     }
 
+                    console.log("REMOVED SOCKET FROM ROOM");
+
                 }
 
             }
-
-            console.log("REMOVED SOCKET FROM ROOM");
 
             const foundSocketUser = tokens.find(object => object.token === socket.data.token);
             console.log(foundSocketUser)
             if (foundSocketUser){
 
-                console.log("deleting socket from token database");
+                setTimeout(()=>{
 
-                let i;
-                while ((i = foundSocketUser["active-sockets"].indexOf(socket.id)) > -1) {
-                    foundSocketUser["active-sockets"].splice(i, 1);
-                }
+                    console.log("deleting socket from token database");
 
-                console.log("successfully deleted instances of the socket")
-                console.log(foundSocketUser)
+                    let i;
+                    while ((i = foundSocketUser["active-sockets"].indexOf(socket.id)) > -1) {
+                        foundSocketUser["active-sockets"].splice(i, 1);
+                    }
 
-                if (foundSocketUser["active-sockets"].length == 0){
+                    console.log("successfully deleted instances of the socket")
+                    console.log(foundSocketUser)
 
-                    tokens.splice(tokens.indexOf(foundSocketUser), 1)
-                    console.log("deleting token")
+                    if (foundSocketUser["active-sockets"].length == 0){
 
-                }
+                        tokens.splice(tokens.indexOf(foundSocketUser), 1)
+                        console.log("deleting token")
+
+                    }
+
+                }, 10000)
 
             }
 
@@ -486,6 +500,10 @@ async function roomCheckLoop(){
     if (rooms.length > 0){
 
         rooms = rooms.filter(room => room["active-users"].length > 0);
+        rooms = rooms.filter(room => room["host"] !== "undefined" || 
+        room["host"] !== undefined ||
+        room["host"] !== "null" ||
+        room["host"] !== null);
 
     }
 
