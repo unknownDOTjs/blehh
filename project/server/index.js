@@ -525,8 +525,8 @@ io.on("connection", async (socket)=>{
         if (foundCode){
 
             asyncFunctionCallBack(dataHandler.createUserData, client, foundCode["username"], foundCode["password"], foundCode["email"]);
-            verificationCodes = verificationCodes.filter(code => code["email"] === foundCode["email"]);
-            verificationCodes = verificationCodes.filter(code => code["username"] === foundCode["username"]);
+            verificationCodes = verificationCodes.filter(code => code["email"] !== foundCode["email"]);
+            verificationCodes = verificationCodes.filter(code => code["username"] !== foundCode["username"]);
             socket.emit("validVerificationCode")
 
         }
