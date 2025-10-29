@@ -7,6 +7,9 @@ const { MongoClient } = require("mongodb")
 //importing bcrypt
 const bcrypt = require("bcrypt");
 
+//importing node mailer
+let nodemailer = require('nodemailer');
+
 //importing express and creating a new express app instance
 const express = require("express");
 const path = require('path');
@@ -42,7 +45,9 @@ const port = 3000;
 
 //other imported and self created scripts go here
 const userHandler = require("./user-handling.js")
-const dataHandler = require("./data-handling.js")
+const dataHandler = require("./data-handling.js");
+const { error } = require("console");
+const { cachedDataVersionTag } = require("v8");
 //initiates server if server is not on
 if (!server.listening){
 
@@ -77,13 +82,7 @@ asyncFunctionCallBack(dataHandler.recieveMongoDataBase, client, true).then((retu
 });
 
 //asyncFunctionCallBack(dataHandler.comparePasword, client, "poop", "Dodona2a").then((value)=>{console.log(value)}) //<-- password compare function
-asyncFunctionCallBack(dataHandler.createUserData, client, "epic", "gayboy").then((value)=>{console.log(value)}) //<-- creating user function
-asyncFunctionCallBack(dataHandler.createUserData, client, "riley_butt", "iambrown").then((value)=>{console.log(value)})
-asyncFunctionCallBack(dataHandler.createUserData, client, "leftNuttSack", "hairy").then((value)=>{console.log(value)})
-asyncFunctionCallBack(dataHandler.createUserData, client, "4incher", "ayo?").then((value)=>{console.log(value)})
-asyncFunctionCallBack(dataHandler.createUserData, client, "peep", "justapassword").then((value)=>{console.log(value)})
-asyncFunctionCallBack(dataHandler.createUserData, client, "toenail", "clippers").then((value)=>{console.log(value)})
-asyncFunctionCallBack(dataHandler.createUserData, client, "minor", "hmmmm").then((value)=>{console.log(value)})
+//asyncFunctionCallBack(dataHandler.createUserData, client, "epic", "gayboy", "loltim26@gmail.com").then((value)=>{console.log(value)}) //<-- creating user function
 
 //runs BEFORE a user has fully connected
 /*io.use((socket, next)=>{
@@ -102,6 +101,7 @@ const characters = [
 
 //TOKENS-----
 var tokens = [];
+var verificationCodes = []
 var rooms = [{
     "room code": "ABCD",
     "active-users": [],
@@ -163,7 +163,7 @@ io.on("connection", async (socket)=>{
     })
 
     //searching for a room
-    socket.on("search-room", (givenRoomCode, givenLocalRoomCode)=>{
+    socket.on("search-room", (givenRoomCode)=>{
 
         const foundRoom = rooms.find(room => room["room code"] === String(givenRoomCode));
 
@@ -204,15 +204,6 @@ io.on("connection", async (socket)=>{
         socket.join(givenRoomCode);
         console.log(`joinRoom called in process ${process.pid}`);
         const foundRoom = rooms.find(room => room["room code"] === String(givenRoomCode));
-        rooms.find((room) => {
-            console.log(`ROOM CODE COMPARISON BRUZZZ ${room["room code"]}, ${givenRoomCode}`)
-        });
-
-        for (let i = 0; i < 20; i++){
-
-            console.log(`the found room: ${foundRoom}`);
-
-        }
 
         let existingUser;
         if (foundRoom){
@@ -251,6 +242,7 @@ io.on("connection", async (socket)=>{
 
             let extractedRoomData = extractRoomData();
             socket.to(foundRoom["room code"]).emit("greet-user", socket.data.username)
+            socket.emit("greet-user", socket.data.username)
             socket.broadcast.emit("server-active-rooms", extractedRoomData);
 
         }
@@ -493,6 +485,59 @@ io.on("connection", async (socket)=>{
 
     });
 
+    socket.on("checkUserData", (createdUsername, createdPassword, givenEmail)=>{
+
+        asyncFunctionCallBack(dataHandler.checkNewAccountDetails, client, createdUsername, createdPassword,
+        givenEmail, verificationCodes).then((userDataStatus)=>{
+
+            let hasError = false;
+            for (i = 0; i < userDataStatus.length; i++){
+
+                if (userDataStatus[i] !== null){
+                    if (!userDataStatus[i][0]){
+                        hasError = true;
+                    }
+                }
+
+            }
+
+            if (userDataStatus[3]){
+
+                verificationCodes = userDataStatus[3];
+                userDataStatus.splice(3, 1)
+
+            }
+
+            if (hasError){ socket.emit("invalidUserData", userDataStatus) }
+
+            else{ socket.emit("validUserData") }
+
+            console.log(userDataStatus)
+            console.log("verification codes:", verificationCodes)
+        });
+
+    });
+
+    socket.on("verifyAccount", (inputCode)=>{
+
+        const foundCode = verificationCodes.find(code => code["verification code"] === String(inputCode));
+        console.log(foundCode)
+        if (foundCode){
+
+            asyncFunctionCallBack(dataHandler.createUserData, client, foundCode["username"], foundCode["password"], foundCode["email"]);
+            verificationCodes.splice(verificationCodes.indexOf(foundCode), 1)
+            socket.emit("validVerificationCode")
+
+        }
+
+        else{
+
+            socket.emit("invalidVerificationCode")
+
+        }
+
+    })
+
 })
 
 async function roomCheckLoop(){
@@ -519,6 +564,25 @@ async function roomCheckLoop(){
 }
 
 roomCheckLoop();
+
+async function verificationCodeLoop(){
+
+    if (verificationCodes.length > 0){
+
+        const expiryTime = 60 * 60 * 1000;
+        verificationCodes = verificationCodes.filter(code => 
+            currentTime - code["time created"] < expiryTime
+        );
+
+    }
+
+    console.log(verificationCodes);
+    await wait(25000);
+    verificationCodeLoop();
+    
+}
+
+verificationCodeLoop()
 
 //re-usable functions
 async function asyncFunctionCallBack(givenFunction, ...params){

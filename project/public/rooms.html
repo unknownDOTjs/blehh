@@ -35,6 +35,94 @@
 
     </div>
 
+    <!----- navigation bar ----->
+    <div class = "navBarWrapperDesktop">
+
+        <div class = "navBar">
+
+            <img class = "navBarLogo" style = "margin-top: 20px" src = "images/yuzz watch logos/yuzz watch logo.png">
+            <div class="navBarContent">
+
+                <div class = "navButton" onclick = "logUserOut()">Log out <span>➜]</span></div>
+
+            </div>
+
+        </div>
+        <div class = "navBar-activate">
+
+            <img class = "menuIcon" src = "images/other images/menu icon.png">
+
+        </div>
+
+    </div>
+
+    <div class = "navBarWrapperMobile">
+
+        <div class = "navBar">
+
+            <img class = "navBarLogo" src = "images/yuzz watch logos/yuzz watch logo.png">
+            <div class="navBarContent">
+
+                <div class = "navButton" onclick = "logUserOut()">Log out <span>➜]</span></div>
+
+            </div>
+
+
+        </div>
+        <div class = "navBar-activate" onclick = "mobileNavBarHandler()">
+
+            <img class = "menuIcon" src = "images/other images/menu icon.png">
+            <img class = "closeIcon" src = "images/other images/close icon.png">
+
+        </div>
+
+    </div>
+
+    <script>
+
+        const tab = document.getElementsByClassName("navBar-activate")[1];
+        const navBar = document.getElementsByClassName("navBar")[1];
+        const menuIcon = document.getElementsByClassName("menuIcon")[1];
+        const closeIcon = document.getElementsByClassName("closeIcon")[0];
+
+        function mobileNavBarHandler(){
+
+            if (navBar.style.left == "0px"){
+
+                tab.style.left = "0px";
+                navBar.style.left = "-100%";
+                tab.style.borderRadius = "0px";
+                tab.style.borderColor = "transparent";
+                tab.style.borderTopRightRadius = "20px";
+                tab.style.borderBottomRightRadius = "20px";
+
+                menuIcon.style.opacity = "1";
+                closeIcon.style.opacity = "0";
+
+            }
+
+            else{
+
+                tab.style.left = "calc(100% - 100px)";
+                navBar.style.left = "0"; 
+                tab.style.borderRadius = "20px";
+                tab.style.borderColor = "white";
+                menuIcon.style.opacity = "0";
+                closeIcon.style.opacity = "1";
+
+            }
+
+        }
+
+        function logUserOut(){
+
+            localStorage.clear();
+            window.location = "index.html"
+
+        }
+
+    </script>
+
     <!----- server socket io module ----->
     <script type = "text/javascript" src = "/socket.io/socket.io.js"></script>
     <script type = "text/javascript" src = "scripts/rooms.js"></script>

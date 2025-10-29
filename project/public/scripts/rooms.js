@@ -76,7 +76,7 @@ function searchRoom(){
 
     var roomCode = document.getElementById("inputROOMCODE").value;
 
-    socket.emit("search-room", roomCode, localRooms)
+    socket.emit("search-room", roomCode)
 
 }
 

@@ -1,6 +1,16 @@
 
 const bcrypt = require("bcrypt");
 
+let nodemailer = require('nodemailer');
+
+const characters = [
+    "A", "B", "C", "D", "E", "F", "G", "H", "I",
+    "J", "K", "L", "M", "N", "O", "P", "Q", "R",
+    "S", "T", "U", "V", "W", "X", "Y", "Z", "1",
+    "2", "3", "4", "5", "6", "7", "8", "9", "0"
+]
+
+
 module.exports = {
 
     recieveMongoDataBase: async function(clientReference, returnData){
@@ -26,39 +36,93 @@ module.exports = {
 
     },
 
-    createUserData: async function(clientReference, createdUsername, createdPassword){
+    createUserData: async function(clientReference, createdUsername, createdPassword, givenEmail){
 
         //data base link set up
         const database = clientReference.db("admin_database");
         const collection = database.collection("admin_users");
 
-        //username and password validation. returns [boolean, string]
+        const processingRounds = 10;
+
+        //hashes the password
+        const hashedPassword = await bcrypt.hash(createdPassword, processingRounds);
+
+        //adds new user to the data base with the hashed password
+        await collection.insertOne(
+        { 
+            "username": createdUsername,
+            "password": hashedPassword,
+            "email": givenEmail
+
+        });
+
+        console.log(`Added user: ${createdUsername}`);
+    },
+
+    checkNewAccountDetails: async function(clientReference, createdUsername, createdPassword, givenEmail, verificationCodes){
+
+        const database = clientReference.db("admin_database");
+        const collection = database.collection("admin_users");
+
         const usernameValidation = await validateUserDataInput(collection, "username", createdUsername);
         const passwordValidation = await validateUserDataInput(collection, "password", createdPassword);
 
-        //only if they are valid values
-        if (usernameValidation[0] && passwordValidation[0]){
+        if (!usernameValidation[0] || !passwordValidation[0]){ return [usernameValidation, passwordValidation, null]; }
 
-            //processing rounds are how many times bcrypt will hash the password
-            const processingRounds = 10;
+        let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'yuzzwatch@gmail.com',
+            pass: 'xpup aadb slis sngh'
+        }
+        });
 
-            //hashes the password
-            const hashedPassword = await bcrypt.hash(createdPassword, processingRounds);
+        let verificationCode = createVerificationCode();
+        while ((verificationCodes.find(code => code["code"] === verificationCode))){
 
-            //adds new user to the data base with the hashed password
-            await collection.insertOne(
-            { 
-                "username": createdUsername,
-                "password": hashedPassword,
-
-            });
-
-            console.log(`Added user: ${createdUsername}`);
+            verificationCode = createRoomCode();
 
         }
 
-        //returns username and password validation. e.g. [[boolean, string], [boolean, string]]
-        return [usernameValidation, passwordValidation];
+        let mailOptions = {
+            from: 'yuzzwatch@gmail.com',
+            to: givenEmail,
+            subject: 'Sending Email using Node.js',
+            text: `Here is your verification code: ${verificationCode}. This code will expire around the next hour.
+            Please don't share this with anyone else.`
+        };
+
+        try{
+
+            const extractedData = await module.exports.recieveMongoDataBase(clientReference, true);
+            const existingEmail = extractedData.find(user => user.email == givenEmail);
+
+            if (!existingEmail){
+
+                verificationCodes = verificationCodes.filter(code => code["email"] !== givenEmail);
+
+                const info = await transporter.sendMail(mailOptions);
+                console.log("Email has been sent: ", info.response);
+                verificationCodes.push({
+
+                    "verification code": verificationCode,
+                    "username": createdUsername,
+                    "password": createdPassword,
+                    "email": givenEmail,
+                    "time created": new Date()
+
+                });
+
+                return [usernameValidation, passwordValidation, [true, "Valid email format"], verificationCodes]
+
+            }
+
+            else{ return [usernameValidation, passwordValidation, [false, "Email is already in use"]] }
+
+        } catch(error){
+            console.log("Error: ", error)
+            return [usernameValidation, passwordValidation, [false, "Invalid email format"]]
+        }
 
     },
 
@@ -82,71 +146,6 @@ module.exports = {
 
     },
 
-    updateUserData: async function(clientReference, givenUsername, givenSocketID, givenToken, settingData){
-
-        const database = clientReference.db("admin_database");
-        const collection = database.collection("admin_users");
-
-        var existingUser = await collection.findOne(
-        { username: givenUsername },
-        { projection: {"active-sockets": 1, "token": 1}}
-        );
-
-        if (!existingUser) return
-
-        if (settingData){
-
-            const setToken = givenToken;
-            
-            await collection.updateOne(
-                {username: givenUsername},
-                {
-                    $set:{
-                        "activity-status": true,
-                        "token": setToken
-                    },
-                    $addToSet:{
-                        "active-sockets": givenSocketID
-                    }
-                }
-            )
-
-        }
-
-        else{
-
-            await collection.updateOne(
-            { username: givenUsername },   // filter
-            { 
-                $pull: { "active-sockets": givenSocketID } 
-            } // remove the field
-            );
-            
-            if (existingUser["active-sockets"].length == 0){
-
-                await collection.updateOne(
-                    {username: givenUsername},
-                    {
-                        $set:{
-                            "activity-status": false,
-                            "token": ""
-                        },
-                    }
-                )
-
-            }
-
-        }
-
-    },
-
-    checkSession: async function(clientReference, givenUsername, givenToken, givenSocketID){
-    },
-
-    recieveUserSockets: async function(clientReference){
-
-    }
-
 }
 
 
@@ -154,7 +153,7 @@ async function validateUserDataInput(collectionReference, inputType, input){
 
     for (characterIndex = 0; characterIndex < String(input).length; characterIndex++){
         //returns false if there are spaces
-        if (String(input)[characterIndex] == " ") return [false, "Problem: syntax."];
+        if (String(input)[characterIndex] == " ") return [false, "Problem: Invalid syntax."];
     }
 
     console.log(inputType)
@@ -169,11 +168,18 @@ async function validateUserDataInput(collectionReference, inputType, input){
         { projection: { username: 1, password: 1, } }
         );
         
-        if (confirmedExisting) return [false, "Problem: user exists."]
+        if (confirmedExisting) return [false, "Problem: User exists."]
     }
 
-    else if (inputType !== "password") 
+    else if (inputType == "password"){
+
+        if (input.includes(" ")){ return [false, "Problem: Password contains spaces"] }
+
+    }
+
+    else
         throw Error("Invalid input type. Must be username or password.");
+        
 
     //returns true if input passes all checks
     return [true, "Valid"]
@@ -184,5 +190,20 @@ async function validateUserDataInput(collectionReference, inputType, input){
 function wait (waitTime){
 
     return new Promise(resolve => setTimeout(resolve, waitTime))
+
+}
+
+function createVerificationCode(){
+
+    let verificationCode = "";
+
+    for (let i = 0; i < 17; i++){
+
+        let chosenCharacter = Math.floor(Math.random()*characters.length);
+        verificationCode += characters[chosenCharacter];
+
+    }
+
+    return verificationCode
 
 }

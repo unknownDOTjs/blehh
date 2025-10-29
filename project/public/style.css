@@ -59,6 +59,17 @@ body{
 
 }
 
+.createAccount{
+
+    color: rgb(57, 117, 255);
+    height: max-content;
+
+    font-family: "Open Sans", sans-serif;
+
+    cursor: pointer
+
+}
+
 .errorDisplay{
 
     color: red;
@@ -132,7 +143,7 @@ body{
     user-select: none;
 
     cursor: pointer;
-
+    
     font-family: "Open Sans", sans-serif;
 
     transition: transform 0.2s ease-in-out;
@@ -169,6 +180,41 @@ body{
     padding-bottom: 20px;
     background-color: rgba(22, 9, 9, 0.3);
     color: white;
+
+}
+
+
+/* create acount styling */
+#form{
+
+    position: relative;
+    width: max-content;
+    text-align: left;
+
+}
+
+#form label{
+
+    font-size: 30px;
+    font-family: "Open Sans", sans-serif;
+    color:white;
+
+}
+
+#accountVerificationContainer{
+
+    position: relative;
+    margin-top: 30px;
+    display: none;
+    width: max-content;
+
+}
+
+#accountVerificationContainer h2{
+
+    font-size: 30px;
+    font-family: "Open Sans", sans-serif;
+    color:white;
 
 }
 
@@ -491,6 +537,193 @@ body{
 
 }
 
+
+/*----- navigation bar -----*/
+.navBarWrapperDesktop .navBar{
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-400px);
+    height: 100%;
+    width: 400px;
+
+    background-color: rgba(9, 15, 29, 0.8);
+    backdrop-filter: blur(4px);
+
+    transition: transform 0.3s ease-in-out;
+
+}
+
+.navBarWrapperDesktop .navBar-activate{
+
+    position: absolute;
+    top: 20px;
+    left: 0;
+    height: 70px;
+    width: 70px;
+
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border: transparent solid 3px;
+
+    background-color: rgba(9, 15, 29, 0.8);
+    backdrop-filter: blur(4px);
+
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+
+    cursor: pointer;
+
+}
+
+.navBarWrapperDesktop:has(.navBar-activate:hover) .navBar-activate{
+
+    transform: translateX(300px);
+    cursor: auto;
+    opacity: 0;
+
+}
+
+.navBarWrapperDesktop:has(.navBar:hover) .navBar-activate{
+
+    transform: translateX(300px);
+    cursor: auto;
+    opacity: 0;
+
+}
+
+
+.navBarWrapperDesktop:has(.navBar-activate:hover) .navBar{
+
+    transform: translateX(0);
+
+}
+
+.navBarWrapperDesktop:has(.navBar:hover) .navBar{
+
+    transform: translateX(0);
+
+}
+
+.navBarWrapperMobile{
+
+    display: none;
+
+}
+
+.navBarWrapperMobile .navBar{
+
+    position: fixed;
+    top: 0;
+    left: -100%;
+    height: 100%;
+    width: 100%;
+
+    background-color: rgba(9, 15, 29, 0.8);
+    backdrop-filter: blur(6px);
+
+    transition: left 0.3s ease-in-out;
+}
+
+.navBarWrapperMobile .navBar-activate{
+
+    position: absolute;
+    top: 20px;
+    left: 0;
+    height: 70px;
+    width: 70px;
+
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border: transparent solid 3px;
+
+    background-color: rgba(9, 15, 29, 0.8);
+    backdrop-filter: blur(6px);
+
+    transition: left 0.3s ease-in-out, background-color 0.3s ease-in-out, border 0.3s ease-in-out;
+
+    cursor: pointer;
+}
+
+.navBarWrapperMobile .navBarLogo{
+
+    margin-top: 20px;
+    width: 200px;
+    height: 60px;
+
+}
+
+.navBarLogo{
+    margin-left: 14px;
+    width: 250px;
+    height: 75px;
+
+    cursor: pointer;
+}
+
+.navBar, .navBar-activate {
+    will-change: transform;
+}
+
+.navBarContent{
+
+    margin-top: 20px;
+
+}
+
+.menuIcon{
+
+    position: absolute;
+    transform: translate(-50%,-50%);
+    width: 40px;
+    height: 30px;
+    left: 50%;
+    top: 50%;
+
+    transition: opacity 0.3s ease-in-out;
+
+}
+
+.closeIcon{
+
+    position: absolute;
+    transform: translate(-50%,-50%);
+    width: 40px;
+    height: 30px;
+    left: 50%;
+    top: 50%;
+    opacity: 0;
+
+    transition: opacity 0.3s ease-in-out;
+
+}
+
+.navButton{
+
+    font-family: "Open Sans", sans-serif;
+    color: white;
+    font-weight: 600;
+    font-size: 20px;
+    padding: 27px;
+
+    cursor: pointer;
+
+    transition: background-color 0.3s ease-in-out;
+
+}
+
+.navButton span{
+
+    color:#FCA311
+
+}
+
+.navButton:hover{
+
+    background-color: rgba(4, 7, 14, 0.8);
+
+}
+
 @media (max-width: 820px) {
 
     #loginInterfaceContainer{
@@ -508,6 +741,27 @@ body{
 
         width: 300px;
         height: 90px;
+
+    }
+
+    .navBarWrapperDesktop{
+
+        display: none;
+
+    }
+
+    .navBarWrapperMobile{
+
+        display: block;
+
+    }
+
+    #form{
+
+        position: absolute;
+        transform: translate(-50%,-50%);
+        top: 50%;
+        left: 50%;
 
     }
 
