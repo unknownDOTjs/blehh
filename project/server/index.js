@@ -591,7 +591,6 @@ async function asyncFunctionCallBack(givenFunction, ...params){
     const functionValue = await givenFunction(...params);
     if (functionValue !== undefined){ return functionValue }
 
-
 }
 
 function wait (waitTime){

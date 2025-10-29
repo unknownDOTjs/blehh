@@ -99,7 +99,10 @@ module.exports = {
 
             if (!existingEmail){
 
-                verificationCodes = verificationCodes.filter(code => code["email"] !== givenEmail);
+                const foundCodeEmail = verificationCodes.findIndex(code => code["email"] === givenEmail);
+                const foundCodeUsername = verificationCodes.findIndex(code => code["username"] === createdUsername);
+                if (foundCodeEmail > -1){ verificationCodes.splice(foundCodeEmail, 1) }
+                if (foundCodeUsername > -1){ verificationCodes.splice(foundCodeUsername, 1) }
 
                 const info = await transporter.sendMail(mailOptions);
                 console.log("Email has been sent: ", info.response);
