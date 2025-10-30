@@ -75,20 +75,24 @@ socket.on("request-host-data", (senderSocketID)=>{
     var videoUrl = player.getVideoUrl();
     var videoId = new URL(videoUrl).searchParams.get('v');
 
+    let currentTime = Date.now()
+
     socket.emit("update-specific-user", player.getPlayerState(), 
-    player.getCurrentTime(), String(videoId), parseFloat(player.getPlaybackRate()), senderSocketID, localRoomData["room code"])
+    player.getCurrentTime(), String(videoId), parseFloat(player.getPlaybackRate()), senderSocketID, localRoomData["room code"], currentTime)
 
 })
 
-socket.on("recieve-requested-data", (hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed)=>{
+socket.on("recieve-requested-data", (hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed, timeToServer, serverTime)=>{
 
-    updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed)
+    updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed, timeToServer, serverTime)
+    console.log(timeToServer)
 
 })
 
-socket.on("update-playerState", (hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed)=>{
+socket.on("update-playerState", (hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed, timeToServer, serverTime)=>{
 
-    updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed)
+    updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed, timeToServer, serverTime)
+    console.log(timeToServer)
 
 })
 
@@ -222,8 +226,10 @@ function onPlayerStateChange(event) {
     var videoUrl = player.getVideoUrl();
     var videoId = new URL(videoUrl).searchParams.get('v');
 
+    let currentTime = Date.now()
+
     socket.emit("update-others-playerState", player.getPlayerState(), 
-    player.getCurrentTime(), String(videoId), parseFloat(player.getPlaybackRate()), localRoomData["room code"]);
+    player.getCurrentTime(), String(videoId), parseFloat(player.getPlaybackRate()), currentTime, localRoomData["room code"]);
 
 }
 
@@ -235,8 +241,10 @@ function onPlayerRateChange(event){
     var videoUrl = event.target.getVideoUrl();
     var videoId = new URL(videoUrl).searchParams.get('v');
 
+    let currentTime = Date.now()
+
     socket.emit("update-others-playerState", player.getPlayerState(), 
-    player.getCurrentTime(), String(videoId), parseFloat(player.getPlaybackRate()), localRoomData["room code"]);
+    player.getCurrentTime(), String(videoId), parseFloat(player.getPlaybackRate()), currentTime, localRoomData["room code"]);
 
 }
 
@@ -274,13 +282,16 @@ function submitVdeoID(){
 
 }
 
-function updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed){
+function updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed, timeToServer, serverTime){
 
     if (player){
 
         if ((player.getCurrentTime()) < hostTimeStamp - 5 || (player.getCurrentTime()) > hostTimeStamp + 5){
 
-            player.seekTo(hostTimeStamp, true);
+            let currentTime = Date.now();
+            let delayFromServer = (currentTime - serverTime);
+            let totalDelay = (timeToServer + delayFromServer)/1000
+            player.seekTo((hostTimeStamp + totalDelay), true);
 
         }
 

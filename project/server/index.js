@@ -306,7 +306,7 @@ io.on("connection", async (socket)=>{
     })
 
     //live room info handling
-    socket.on("update-others-playerState", (hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed, givenRoomCode)=>{
+    socket.on("update-others-playerState", (hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed, givenTime, givenRoomCode)=>{
 
         const foundRoom = rooms.find(room => room["room code"] === givenRoomCode);
 
@@ -314,9 +314,10 @@ io.on("connection", async (socket)=>{
 
             if (socket.data.username == foundRoom.host){
 
-                console.log(hostState)
+                let serverTime = Date.now();
+                let timeToServer = (serverTime - givenTime)
 
-                socket.to(givenRoomCode).emit("update-playerState", hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed);
+                socket.to(givenRoomCode).emit("update-playerState", hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed, timeToServer, serverTime);
 
             }
 
@@ -331,13 +332,20 @@ io.on("connection", async (socket)=>{
 
     })
 
-    socket.on("update-specific-user", (hostState, hostTimeStamp, hostVideoID, playBackSpeed, senderSocketID, givenRoomCode)=>{
+    socket.on("update-specific-user", (hostState, hostTimeStamp, hostVideoID, playBackSpeed, senderSocketID, givenRoomCode, givenTime)=>{
 
         const foundRoom = rooms.find(room => room["room code"] === givenRoomCode);
         const foundHost = foundRoom["active-users"].find(user => user.socketID === socket.id);
 
-        if (foundHost){ io.to(senderSocketID).emit("recieve-requested-data", 
-        hostState, hostTimeStamp, hostVideoID, playBackSpeed) }
+        if (foundHost){
+
+            let serverTime = Date.now();
+            let timeToServer = (serverTime - givenTime)
+
+            io.to(senderSocketID).emit("recieve-requested-data", 
+            hostState, hostTimeStamp, hostVideoID, playBackSpeed, timeToServer, serverTime) 
+
+        }
 
     })
 
@@ -357,6 +365,7 @@ io.on("connection", async (socket)=>{
         if (socket.data.isInRoom == true){
 
             for (let i = 0; i < rooms.length; i++){
+
                 const foundUser = rooms[i]["active-users"].findIndex(user => user.socketID === socket.id);
                 const foundTokenUser = tokens.find(user => user.token === socket.data.token);
                 console.log(foundTokenUser)
@@ -588,8 +597,18 @@ verificationCodeLoop()
 //re-usable functions
 async function asyncFunctionCallBack(givenFunction, ...params){
 
-    const functionValue = await givenFunction(...params);
-    if (functionValue !== undefined){ return functionValue }
+    try{
+
+        const functionValue = await givenFunction(...params);
+        if (functionValue !== undefined){ return functionValue }
+
+    }
+
+    catch (error){
+
+        console.error(`[asyncFunctionCallBack ERROR in ${givenFunction.name}]:`, error);
+
+    }
 
 }
 
