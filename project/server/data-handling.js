@@ -88,7 +88,7 @@ module.exports = {
             from: 'yuzzwatch@gmail.com',
             to: givenEmail,
             subject: 'Sending Email using Node.js',
-            text: `Here is your verification code: ${verificationCode}. This code will expire around the next hour.
+            text: `Here is your verification code: ${verificationCode}. This code will expire around the next 10 minutes.
             Please don't share this with anyone else.`
         };
 

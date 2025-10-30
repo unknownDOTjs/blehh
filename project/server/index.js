@@ -570,7 +570,7 @@ async function verificationCodeLoop(){
 
     if (verificationCodes.length > 0){
 
-        const expiryTime = 30 * 60 * 1000;
+        const expiryTime = 10 * 60 * 1000;
         const currentTime = Date.now()
         verificationCodes = verificationCodes.filter(code => 
         (currentTime - code["time created"]) < expiryTime);
