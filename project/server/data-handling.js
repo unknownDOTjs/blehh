@@ -154,14 +154,18 @@ module.exports = {
 
 async function validateUserDataInput(collectionReference, inputType, input){
 
-    for (characterIndex = 0; characterIndex < String(input).length; characterIndex++){
-        //returns false if there are spaces
-        if (String(input)[characterIndex] == " ") return [false, "Problem: Invalid syntax."];
-    }
+    let minCharacters = 3;
+    let maxCharacters = 20;
+
+    if (input.trim() == "") return [false, "Problem: Invalid syntax."]
 
     console.log(inputType)
 
     if (inputType == "username"){
+
+        if (input.includes(" ")) return [false, "Problem: Username contains spaces"] 
+        if (String(input).length < minCharacters) return [false, "Problem: Minimum characters is 3.<br> Username too short."] 
+        if (String(input).length > maxCharacters) return [false, "Problem: Maximum characters is 20.<br> Username too long."]
 
         console.log("finding username...")
 
@@ -175,8 +179,9 @@ async function validateUserDataInput(collectionReference, inputType, input){
     }
 
     else if (inputType == "password"){
-
+        
         if (input.includes(" ")){ return [false, "Problem: Password contains spaces"] }
+        if (String(input).length < minCharacters) return [false, "Problem: Minimum characters is 3.<br> Password too short."] 
 
     }
 
