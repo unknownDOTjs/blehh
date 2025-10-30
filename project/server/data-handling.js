@@ -112,7 +112,7 @@ module.exports = {
                     "username": createdUsername,
                     "password": createdPassword,
                     "email": givenEmail,
-                    "time created": new Date()
+                    "time created": Date.now()
 
                 });
 
