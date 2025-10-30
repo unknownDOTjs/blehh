@@ -51,6 +51,10 @@ socket.on("invalidUserData", (errors)=>{
 
     }
 
+    form.style.display = "block";
+    document.getElementById("accountVerificationContainer").style.display = "none";
+    verificationCodeError.innerHTML = "";
+
     console.log(errors[2])
 
 })
